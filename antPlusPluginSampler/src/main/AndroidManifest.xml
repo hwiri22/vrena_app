@@ -52,19 +52,9 @@ All rights reserved.
             android:screenOrientation="portrait"
             android:configChanges="orientation"/>
         <activity
-            android:name="com.dsi.ant.antplus.pluginsampler.Activity_EnvironmentSampler"
-            android:label="Environment Plugin Sampler" 
-            android:screenOrientation="portrait"
-            android:configChanges="orientation"/>
-        <activity
             android:name="com.dsi.ant.antplus.pluginsampler.geocache.Activity_GeoScanList"
             android:label="Geocache Plugin Sampler" 
             android:screenOrientation="portrait"
-            android:configChanges="orientation"/>
-        <activity 
-            android:name=".Activity_StrideSdmSampler" 
-            android:label="Stride SDM Plugin Sampler" 
-            android:screenOrientation="portrait" 
             android:configChanges="orientation"/>
         <activity
             android:name="com.dsi.ant.antplus.pluginsampler.controls.Activity_AudioControllableDeviceSampler"
@@ -116,11 +106,7 @@ All rights reserved.
             android:label="Blood Pressure Plugin Sampler" 
             android:configChanges="orientation" 
             android:screenOrientation="portrait"/>
-        <activity android:name="com.dsi.ant.antplus.pluginsampler.Activity_BikePowerSampler" 
-            android:label="Bike Power Plugin Sampler" 
-            android:screenOrientation="portrait" 
-            android:configChanges="orientation"/>
-        <activity android:name="com.dsi.ant.antplus.pluginsampler.watchdownloader.Activity_WatchScanList" 
+        <activity android:name="com.dsi.ant.antplus.pluginsampler.watchdownloader.Activity_WatchScanList"
             android:label="Watch Downloader Plugin Sampler" 
             android:screenOrientation="portrait" 
             android:configChanges="orientation"/>

@@ -21,7 +21,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsi.ant.antplus.pluginsampler.multidevicesearch.Activity_MultiDeviceSearchSampler;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.ICalculatedCadenceReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.IMotionAndCadenceDataReceiver;
@@ -543,23 +542,11 @@ public class Activity_BikeCadenceSampler extends Activity
 
         textView_IsPedallingStopped.setText("---");
 
-        Intent intent = getIntent();
-        if (intent.hasExtra(Activity_MultiDeviceSearchSampler.EXTRA_KEY_MULTIDEVICE_SEARCH_RESULT))
-        {
-            // device has already been selected through the multi-device search
-            MultiDeviceSearchResult result = intent
-                .getParcelableExtra(Activity_MultiDeviceSearchSampler.EXTRA_KEY_MULTIDEVICE_SEARCH_RESULT);
-            boolean isBSC = result.getAntDeviceType().equals(DeviceType.BIKE_SPDCAD);
-            bcReleaseHandle = AntPlusBikeCadencePcc.requestAccess(this,
-                result.getAntDeviceNumber(), 0, isBSC, mResultReceiver, mDeviceStateChangeReceiver);
-        } else
-        {
-            // starts the plugins UI search
-            bcReleaseHandle = AntPlusBikeCadencePcc.requestAccess(this, this, mResultReceiver,
-                mDeviceStateChangeReceiver);
-            // AntPlusBikeCadencePcc.requestAccess(this, 0, 0, false,
-            // //Asynchronous request mode
-        }
+        // starts the plugins UI search
+        bcReleaseHandle = AntPlusBikeCadencePcc.requestAccess(this, this, mResultReceiver,
+            mDeviceStateChangeReceiver);
+        // AntPlusBikeCadencePcc.requestAccess(this, 0, 0, false,
+        // //Asynchronous request mode
     }
 
     @Override

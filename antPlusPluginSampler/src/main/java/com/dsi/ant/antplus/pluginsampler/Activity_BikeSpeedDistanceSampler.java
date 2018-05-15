@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsi.ant.antplus.pluginsampler.multidevicesearch.Activity_MultiDeviceSearchSampler;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.ICalculatedCadenceReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
@@ -571,21 +570,9 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
 
         textView_IsStopped.setText("---");
 
-        Intent intent = getIntent();
-        if (intent.hasExtra(Activity_MultiDeviceSearchSampler.EXTRA_KEY_MULTIDEVICE_SEARCH_RESULT))
-        {
-            // device has already been selected through the multi-device search
-            MultiDeviceSearchResult result = intent
-                .getParcelableExtra(Activity_MultiDeviceSearchSampler.EXTRA_KEY_MULTIDEVICE_SEARCH_RESULT);
-            boolean isBSC = result.getAntDeviceType().equals(DeviceType.BIKE_SPDCAD);
-            bsdReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess(this,
-                result.getAntDeviceNumber(), 0, isBSC, mResultReceiver, mDeviceStateChangeReceiver);
-        } else
-        {
-            // starts the plugins UI search
-            bsdReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess(this, this,
-                mResultReceiver, mDeviceStateChangeReceiver);
-        }
+        // starts the plugins UI search
+        bsdReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess(this, this,
+            mResultReceiver, mDeviceStateChangeReceiver);
     }
 
     @Override

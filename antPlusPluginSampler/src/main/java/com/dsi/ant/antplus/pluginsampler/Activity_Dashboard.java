@@ -26,21 +26,6 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dsi.ant.antplus.pluginsampler.bloodpressure.Activity_BloodPressureSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_AudioControllableDeviceSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_AudioRemoteControlSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_GenericControllableDeviceSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_GenericRemoteControlSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_VideoControllableDeviceSampler;
-import com.dsi.ant.antplus.pluginsampler.controls.Activity_VideoRemoteControlSampler;
-import com.dsi.ant.antplus.pluginsampler.fitnessequipment.Activity_FitnessEquipmentSampler;
-import com.dsi.ant.antplus.pluginsampler.fitnessequipment.Dialog_ConfigSettings;
-import com.dsi.ant.antplus.pluginsampler.geocache.Activity_GeoScanList;
-import com.dsi.ant.antplus.pluginsampler.heartrate.Activity_AsyncScanHeartRateSampler;
-import com.dsi.ant.antplus.pluginsampler.heartrate.Activity_SearchUiHeartRateSampler;
-import com.dsi.ant.antplus.pluginsampler.multidevicesearch.Activity_MultiDeviceFilter;
-import com.dsi.ant.antplus.pluginsampler.watchdownloader.Activity_WatchScanList;
-import com.dsi.ant.antplus.pluginsampler.weightscale.Activity_WeightScaleSampler;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
 import com.dsi.ant.plugins.pluginlib.version.PluginLibVersionInfo;
 
@@ -74,7 +59,6 @@ public class Activity_Dashboard extends FragmentActivity
         List<Map<String,String>> menuItems = new ArrayList<Map<String,String>>();
         menuItems.add(new HashMap<String,String>(){{put("title","Bike Cadence Display");put("desc","Receive from Bike Cadence sensors");}});
         menuItems.add(new HashMap<String,String>(){{put("title","Bike Speed and Distance Display");put("desc","Receive from Bike Speed sensors");}});
-        menuItems.add(new HashMap<String,String>(){{put("title","Multi Device Search");put("desc","Search for multiple device types on the same channel");}});
         menuItems.add(new HashMap<String,String>(){{put("title","Launch ANT+ Plugin Manager");put("desc","Controls device database and default settings");}});
 
         SimpleAdapter adapter = new SimpleAdapter(this, menuItems, android.R.layout.simple_list_item_2, new String[]{"title","desc"}, new int[]{android.R.id.text1,android.R.id.text2});
@@ -94,11 +78,6 @@ public class Activity_Dashboard extends FragmentActivity
         else if(position == j++)
         {
             Intent i = new Intent(this, Activity_BikeSpeedDistanceSampler.class);
-            startActivity(i);
-        }
-        else if(position == j++)
-        {
-            Intent i = new Intent(this, Activity_MultiDeviceFilter.class);
             startActivity(i);
         }
         else if(position == j++)
