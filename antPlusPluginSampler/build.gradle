@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '27.0.3'
+
+    defaultConfig {
+        applicationId "com.dsi.ant.antplus.pluginsampler"
+        minSdkVersion 7
+        targetSdkVersion 16
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile project(':antPluginLib')
+    compile 'com.android.support:support-v4:18.0.0'
+    compile files('libs/antpluginlib_3-5-0.jar')
+    implementation project(':fit_14.10')
+}
