@@ -1,4 +1,4 @@
-package com.dsi.ant.antplus.vrena_app;
+package com.vrena.vrena_app;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
