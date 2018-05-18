@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ANT+ Plugin Sampler</string>
+    <string name="app_name">Vrena Test App</string>
     <string name="menu_reset">Reset Connection</string>
     <string name="no_activities_available">No Activities Available</string>
     <string-array name="device_types">

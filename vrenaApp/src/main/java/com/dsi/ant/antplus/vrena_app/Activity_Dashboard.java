@@ -1,4 +1,4 @@
-package com.dsi.ant.antplus.pluginsampler;
+package com.dsi.ant.antplus.vrena_app;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -14,11 +14,9 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
-import com.dsi.ant.plugins.pluginlib.version.PluginLibVersionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

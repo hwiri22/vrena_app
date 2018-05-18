@@ -9,8 +9,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/antPluginLib" />
-            <option value="$PROJECT_DIR$/antPlusPluginSampler" />
             <option value="$PROJECT_DIR$/fit_14.10" />
+            <option value="$PROJECT_DIR$/vrenaApp" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

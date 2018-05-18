@@ -1,8 +1,4 @@
-package com.dsi.ant.antplus.pluginsampler;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.EnumSet;
+package com.dsi.ant.antplus.vrena_app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,14 +14,12 @@ import android.widget.Toast;
 
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.ICalculatedCadenceReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.IMotionAndCadenceDataReceiver;
+import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc.IRawCadenceDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedAccumulatedDistanceReceiver;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.IMotionAndSpeedDataReceiver;
-import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc.IRawSpeedAndDistanceDataReceiver;
 import com.dsi.ant.plugins.antplus.pcc.defines.BatteryStatus;
 import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
-import com.dsi.ant.plugins.antplus.pcc.defines.DeviceType;
 import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc.IDeviceStateChangeReceiver;
@@ -34,31 +28,31 @@ import com.dsi.ant.plugins.antplus.pccbase.AntPlusBikeSpdCadCommonPcc.IBatterySt
 import com.dsi.ant.plugins.antplus.pccbase.AntPlusLegacyCommonPcc.ICumulativeOperatingTimeReceiver;
 import com.dsi.ant.plugins.antplus.pccbase.AntPlusLegacyCommonPcc.IManufacturerAndSerialReceiver;
 import com.dsi.ant.plugins.antplus.pccbase.AntPlusLegacyCommonPcc.IVersionAndModelReceiver;
-import com.dsi.ant.plugins.antplus.pccbase.MultiDeviceSearch.MultiDeviceSearchResult;
 import com.dsi.ant.plugins.antplus.pccbase.PccReleaseHandle;
 
+import java.math.BigDecimal;
+import java.util.EnumSet;
+
 /**
- * Connects to Bike Speed Plugin and display all the event data.
+ * Connects to Bike Cadence Plugin and display all the event data.
  */
-public class Activity_BikeSpeedDistanceSampler extends Activity
+public class Activity_BikeCadenceSampler extends Activity
 {
-    AntPlusBikeSpeedDistancePcc bsdPcc = null;
-    PccReleaseHandle<AntPlusBikeSpeedDistancePcc> bsdReleaseHandle = null;
     AntPlusBikeCadencePcc bcPcc = null;
     PccReleaseHandle<AntPlusBikeCadencePcc> bcReleaseHandle = null;
+    AntPlusBikeSpeedDistancePcc bsPcc = null;
+    PccReleaseHandle<AntPlusBikeSpeedDistancePcc> bsReleaseHandle = null;
 
     TextView tv_status;
 
     TextView tv_estTimestamp;
 
-    TextView tv_calculatedSpeed;
-    TextView tv_calculatedAccumulatedDistance;
-
+    TextView tv_calculatedCadence;
     TextView tv_cumulativeRevolutions;
     TextView tv_timestampOfLastEvent;
 
     TextView tv_isSpdAndCadCombo;
-    TextView tv_calculatedCadence;
+    TextView tv_calculatedSpeed;
 
     TextView tv_cumulativeOperatingTime;
 
@@ -73,34 +67,36 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
     TextView textView_BatteryVoltage;
     TextView textView_BatteryStatus;
 
-    TextView textView_IsStopped;
+    TextView textView_IsPedallingStopped;
 
 
 
-    IPluginAccessResultReceiver<AntPlusBikeSpeedDistancePcc> mResultReceiver = new IPluginAccessResultReceiver<AntPlusBikeSpeedDistancePcc>()
+
+
+    IPluginAccessResultReceiver<AntPlusBikeCadencePcc> mResultReceiver = new IPluginAccessResultReceiver<AntPlusBikeCadencePcc>()
     {
         // Handle the result, connecting to events on success or reporting
         // failure to user.
         @Override
-        public void onResultReceived(AntPlusBikeSpeedDistancePcc result,
+        public void onResultReceived(AntPlusBikeCadencePcc result,
             RequestAccessResult resultCode, DeviceState initialDeviceState)
         {
             switch (resultCode)
             {
                 case SUCCESS:
-                    bsdPcc = result;
+                    bcPcc = result;
                     tv_status.setText(result.getDeviceName() + ": " + initialDeviceState);
                     subscribeToEvents();
                     break;
                 case CHANNEL_NOT_AVAILABLE:
-                    Toast.makeText(Activity_BikeSpeedDistanceSampler.this, "Channel Not Available",
+                    Toast.makeText(Activity_BikeCadenceSampler.this, "Channel Not Available",
                         Toast.LENGTH_SHORT).show();
                     tv_status.setText("Error. Do Menu->Reset.");
                     break;
                 case ADAPTER_NOT_DETECTED:
                     Toast
                         .makeText(
-                            Activity_BikeSpeedDistanceSampler.this,
+                            Activity_BikeCadenceSampler.this,
                             "ANT Adapter Not Available. Built-in ANT hardware or external adapter required.",
                             Toast.LENGTH_SHORT).show();
                     tv_status.setText("Error. Do Menu->Reset.");
@@ -108,12 +104,12 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                 case BAD_PARAMS:
                     // Note: Since we compose all the params ourself, we should
                     // never see this result
-                    Toast.makeText(Activity_BikeSpeedDistanceSampler.this,
-                        "Bad request parameters.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_BikeCadenceSampler.this, "Bad request parameters.",
+                        Toast.LENGTH_SHORT).show();
                     tv_status.setText("Error. Do Menu->Reset.");
                     break;
                 case OTHER_FAILURE:
-                    Toast.makeText(Activity_BikeSpeedDistanceSampler.this,
+                    Toast.makeText(Activity_BikeCadenceSampler.this,
                         "RequestAccess failed. See logcat for details.", Toast.LENGTH_SHORT)
                         .show();
                     tv_status.setText("Error. Do Menu->Reset.");
@@ -121,12 +117,13 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                 case DEPENDENCY_NOT_INSTALLED:
                     tv_status.setText("Error. Do Menu->Reset.");
                     AlertDialog.Builder adlgBldr = new AlertDialog.Builder(
-                        Activity_BikeSpeedDistanceSampler.this);
+                        Activity_BikeCadenceSampler.this);
                     adlgBldr.setTitle("Missing Dependency");
-                    adlgBldr
-                        .setMessage("The required service\n\""
-                            + AntPlusBikeSpeedDistancePcc.getMissingDependencyName()
-                            + "\"\n was not found. You need to install the ANT+ Plugins service or you may need to update your existing version if you already have it. Do you want to launch the Play Store to get it?");
+                    adlgBldr.setMessage("The required service\n\""
+                        + AntPlusBikeCadencePcc.getMissingDependencyName()
+                        + "\"\n was not found. You need to install the ANT+ Plugins service or"
+                        + " you may need to update your existing version if you already have "
+                        + "it. Do you want to launch the Play Store to get it?");
                     adlgBldr.setCancelable(true);
                     adlgBldr.setPositiveButton("Go to Store", new OnClickListener()
                     {
@@ -136,11 +133,11 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                             Intent startStore = null;
                             startStore = new Intent(Intent.ACTION_VIEW, Uri
                                 .parse("market://details?id="
-                                    + AntPlusBikeSpeedDistancePcc
+                                    + AntPlusBikeCadencePcc
                                         .getMissingDependencyPackageName()));
                             startStore.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                            Activity_BikeSpeedDistanceSampler.this.startActivity(startStore);
+                            Activity_BikeCadenceSampler.this.startActivity(startStore);
                         }
                     });
                     adlgBldr.setNegativeButton("Cancel", new OnClickListener()
@@ -159,13 +156,13 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                     tv_status.setText("Cancelled. Do Menu->Reset.");
                     break;
                 case UNRECOGNIZED:
-                    Toast.makeText(Activity_BikeSpeedDistanceSampler.this,
+                    Toast.makeText(Activity_BikeCadenceSampler.this,
                         "Failed: UNRECOGNIZED. PluginLib Upgrade Required?",
                         Toast.LENGTH_SHORT).show();
                     tv_status.setText("Error. Do Menu->Reset.");
                     break;
                 default:
-                    Toast.makeText(Activity_BikeSpeedDistanceSampler.this,
+                    Toast.makeText(Activity_BikeCadenceSampler.this,
                         "Unrecognized result: " + resultCode, Toast.LENGTH_SHORT).show();
                     tv_status.setText("Error. Do Menu->Reset.");
                     break;
@@ -178,12 +175,11 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
          */
         private void subscribeToEvents()
         {
-            // 2.095m circumference = an average 700cx23mm road tire
-            bsdPcc.subscribeCalculatedSpeedEvent(new CalculatedSpeedReceiver(new BigDecimal(2.095))
+            bcPcc.subscribeCalculatedCadenceEvent(new ICalculatedCadenceReceiver()
             {
                 @Override
-                public void onNewCalculatedSpeed(final long estTimestamp,
-                    final EnumSet<EventFlag> eventFlags, final BigDecimal calculatedSpeed)
+                public void onNewCalculatedCadence(final long estTimestamp,
+                    final EnumSet<EventFlag> eventFlags, final BigDecimal calculatedCadence)
                 {
                     runOnUiThread(new Runnable()
                     {
@@ -192,44 +188,19 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                         {
                             tv_estTimestamp.setText(String.valueOf(estTimestamp));
 
-                            tv_calculatedSpeed.setText(String.valueOf(calculatedSpeed));
+                            tv_calculatedCadence.setText(String.valueOf(calculatedCadence));
                         }
                     });
+
                 }
             });
 
-            bsdPcc
-                .subscribeCalculatedAccumulatedDistanceEvent(new CalculatedAccumulatedDistanceReceiver(
-                    new BigDecimal(2.095)) // 2.095m circumference = an average
-                                           // 700cx23mm road tire
-                {
-
-                    @Override
-                    public void onNewCalculatedAccumulatedDistance(final long estTimestamp,
-                        final EnumSet<EventFlag> eventFlags,
-                        final BigDecimal calculatedAccumulatedDistance)
-                    {
-                        runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                tv_estTimestamp.setText(String.valueOf(estTimestamp));
-
-                                tv_calculatedAccumulatedDistance.setText(String
-                                    .valueOf(calculatedAccumulatedDistance.setScale(3,
-                                        RoundingMode.HALF_UP)));
-                            }
-                        });
-                    }
-                });
-
-            bsdPcc.subscribeRawSpeedAndDistanceDataEvent(new IRawSpeedAndDistanceDataReceiver()
+            bcPcc.subscribeRawCadenceDataEvent(new IRawCadenceDataReceiver()
             {
                 @Override
-                public void onNewRawSpeedAndDistanceData(final long estTimestamp,
-                    final EnumSet<EventFlag> eventFlags,
-                    final BigDecimal timestampOfLastEvent, final long cumulativeRevolutions)
+                public void onNewRawCadenceData(final long estTimestamp,
+                    final EnumSet<EventFlag> eventFlags, final BigDecimal timestampOfLastEvent,
+                    final long cumulativeRevolutions)
                 {
                     runOnUiThread(new Runnable()
                     {
@@ -246,7 +217,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                 }
             });
 
-            if (bsdPcc.isSpeedAndCadenceCombinedSensor())
+            if (bcPcc.isSpeedAndCadenceCombinedSensor())
             {
                 runOnUiThread(new Runnable()
                 {
@@ -261,61 +232,60 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                         tv_softwareVersion.setText("N/A");
                         tv_modelNumber.setText("N/A");
 
-                        tv_calculatedCadence.setText("...");
-
-                        bcReleaseHandle = AntPlusBikeCadencePcc.requestAccess(
-                            Activity_BikeSpeedDistanceSampler.this,
-                            bsdPcc.getAntDeviceNumber(), 0, true,
-                            new IPluginAccessResultReceiver<AntPlusBikeCadencePcc>()
+                        tv_calculatedSpeed.setText("...");
+                        bsReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess(
+                            Activity_BikeCadenceSampler.this, bcPcc.getAntDeviceNumber(), 0, true,
+                            new IPluginAccessResultReceiver<AntPlusBikeSpeedDistancePcc>()
                             {
                                 // Handle the result, connecting to events
                                 // on success or reporting failure to user.
                                 @Override
-                                public void onResultReceived(AntPlusBikeCadencePcc result,
+                                public void onResultReceived(
+                                    AntPlusBikeSpeedDistancePcc result,
                                     RequestAccessResult resultCode,
                                     DeviceState initialDeviceStateCode)
                                 {
                                     switch (resultCode)
                                     {
                                         case SUCCESS:
-                                            bcPcc = result;
-                                            bcPcc
-                                                .subscribeCalculatedCadenceEvent(new ICalculatedCadenceReceiver()
+                                            bsPcc = result;
+                                            bsPcc
+                                                .subscribeCalculatedSpeedEvent(new CalculatedSpeedReceiver(
+                                                    new BigDecimal(2.095))
                                                 {
                                                     @Override
-                                                    public void onNewCalculatedCadence(
+                                                    public void onNewCalculatedSpeed(
                                                         long estTimestamp,
                                                         EnumSet<EventFlag> eventFlags,
-                                                        final BigDecimal calculatedCadence)
+                                                        final BigDecimal calculatedSpeed)
                                                     {
                                                         runOnUiThread(new Runnable()
                                                         {
                                                             @Override
                                                             public void run()
                                                             {
-                                                                tv_calculatedCadence.setText(String
-                                                                    .valueOf(calculatedCadence));
+                                                                tv_calculatedSpeed.setText(String
+                                                                    .valueOf(calculatedSpeed));
                                                             }
                                                         });
                                                     }
                                                 });
                                             break;
                                         case CHANNEL_NOT_AVAILABLE:
-                                            tv_calculatedCadence
-                                                .setText("CHANNEL NOT AVAILABLE");
+                                            tv_calculatedSpeed.setText("CHANNEL NOT AVAILABLE");
                                             break;
                                         case BAD_PARAMS:
-                                            tv_calculatedCadence.setText("BAD_PARAMS");
+                                            tv_calculatedSpeed.setText("BAD_PARAMS");
                                             break;
                                         case OTHER_FAILURE:
-                                            tv_calculatedCadence.setText("OTHER FAILURE");
+                                            tv_calculatedSpeed.setText("OTHER FAILURE");
                                             break;
                                         case DEPENDENCY_NOT_INSTALLED:
-                                            tv_calculatedCadence
+                                            tv_calculatedSpeed
                                                 .setText("DEPENDENCY NOT INSTALLED");
                                             break;
                                         default:
-                                            tv_calculatedCadence.setText("UNRECOGNIZED ERROR: "
+                                            tv_calculatedSpeed.setText("UNRECOGNIZED ERROR: "
                                                 + resultCode);
                                             break;
                                     }
@@ -334,10 +304,10 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                                         public void run()
                                         {
                                             if (newDeviceState != DeviceState.TRACKING)
-                                                tv_calculatedCadence.setText(newDeviceState
+                                                tv_calculatedSpeed.setText(newDeviceState
                                                     .toString());
                                             if (newDeviceState == DeviceState.DEAD)
-                                                bcPcc = null;
+                                                bsPcc = null;
                                         }
                                     });
 
@@ -355,11 +325,11 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                     public void run()
                     {
                         tv_isSpdAndCadCombo.setText("No");
-                        tv_calculatedCadence.setText("N/A");
+                        tv_calculatedSpeed.setText("N/A");
                     }
                 });
 
-                bsdPcc.subscribeCumulativeOperatingTimeEvent(new ICumulativeOperatingTimeReceiver()
+                bcPcc.subscribeCumulativeOperatingTimeEvent(new ICumulativeOperatingTimeReceiver()
                 {
                     @Override
                     public void onNewCumulativeOperatingTime(final long estTimestamp,
@@ -379,7 +349,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                     }
                 });
 
-                bsdPcc.subscribeManufacturerAndSerialEvent(new IManufacturerAndSerialReceiver()
+                bcPcc.subscribeManufacturerAndSerialEvent(new IManufacturerAndSerialReceiver()
                 {
                     @Override
                     public void onNewManufacturerAndSerial(final long estTimestamp,
@@ -400,7 +370,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                     }
                 });
 
-                bsdPcc.subscribeVersionAndModelEvent(new IVersionAndModelReceiver()
+                bcPcc.subscribeVersionAndModelEvent(new IVersionAndModelReceiver()
                 {
                     @Override
                     public void onNewVersionAndModel(final long estTimestamp,
@@ -422,7 +392,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                         }
                     });
 
-                    bsdPcc.subscribeBatteryStatusEvent(new IBatteryStatusReceiver()
+                    bcPcc.subscribeBatteryStatusEvent(new IBatteryStatusReceiver()
                     {
                         @Override
                         public void onNewBatteryStatus(final long estTimestamp, EnumSet<EventFlag> eventFlags,
@@ -442,11 +412,11 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                         }
                     });
 
-                    bsdPcc.subscribeMotionAndSpeedDataEvent(new IMotionAndSpeedDataReceiver()
+                    bcPcc.subscribeMotionAndCadenceDataEvent(new IMotionAndCadenceDataReceiver()
                     {
                         @Override
-                        public void onNewMotionAndSpeedData(final long estTimestamp, EnumSet<EventFlag> eventFlags,
-                                final boolean isStopped)
+                        public void onNewMotionAndCadenceData(final long estTimestamp, EnumSet<EventFlag> eventFlags,
+                                final boolean isPedallingStopped)
                         {
                             runOnUiThread(new Runnable()
                             {
@@ -455,7 +425,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                                 {
                                     tv_estTimestamp.setText(String.valueOf(estTimestamp));
 
-                                    textView_IsStopped.setText(String.valueOf(isStopped));
+                                    textView_IsPedallingStopped.setText(String.valueOf(isPedallingStopped));
                             }
                         });
                     }
@@ -467,6 +437,7 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
     // Receives state changes and shows it on the status display line
     IDeviceStateChangeReceiver mDeviceStateChangeReceiver = new IDeviceStateChangeReceiver()
     {
+
         @Override
         public void onDeviceStateChange(final DeviceState newDeviceState)
         {
@@ -475,9 +446,9 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
                 @Override
                 public void run()
                 {
-                    tv_status.setText(bsdPcc.getDeviceName() + ": " + newDeviceState);
+                    tv_status.setText(bcPcc.getDeviceName() + ": " + newDeviceState.toString());
                     if (newDeviceState == DeviceState.DEAD)
-                        bsdPcc = null;
+                        bcPcc = null;
                 }
             });
         }
@@ -487,19 +458,18 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bike_speeddistance);
+        setContentView(R.layout.activity_bike_cadence);
 
         tv_status = (TextView)findViewById(R.id.textView_Status);
 
         tv_estTimestamp = (TextView)findViewById(R.id.textView_EstTimestamp);
 
-        tv_calculatedSpeed = (TextView)findViewById(R.id.textView_CalculatedSpeed);
-        tv_calculatedAccumulatedDistance = (TextView)findViewById(R.id.textView_CalculatedAccumulatedDistance);
+        tv_calculatedCadence = (TextView)findViewById(R.id.textView_CaluclatedCadence);
         tv_cumulativeRevolutions = (TextView)findViewById(R.id.textView_CumulativeRevolutions);
         tv_timestampOfLastEvent = (TextView)findViewById(R.id.textView_TimestampOfLastEvent);
 
         tv_isSpdAndCadCombo = (TextView)findViewById(R.id.textView_IsCombinedSensor);
-        tv_calculatedCadence = (TextView)findViewById(R.id.textView_CalculatedCadence);
+        tv_calculatedSpeed = (TextView)findViewById(R.id.textView_CalculatedSpeed);
 
         tv_cumulativeOperatingTime = (TextView)findViewById(R.id.textView_CumulativeOperatingTime);
 
@@ -513,7 +483,8 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
         textView_BatteryVoltage = (TextView)findViewById(R.id.textView_BatteryVoltage);
         textView_BatteryStatus = (TextView)findViewById(R.id.textView_BatteryStatus);
 
-        textView_IsStopped = (TextView)findViewById(R.id.textView_IsStopped);
+        textView_IsPedallingStopped = (TextView)findViewById(R.id.textView_IsPedallingStopped);
+
 
         resetPcc();
     }
@@ -524,13 +495,13 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
     private void resetPcc()
     {
         //Release the old access if it exists
-        if(bsdReleaseHandle != null)
-        {
-            bsdReleaseHandle.close();
-        }
         if(bcReleaseHandle != null)
         {
             bcReleaseHandle.close();
+        }
+        if(bsReleaseHandle != null)
+        {
+            bsReleaseHandle.close();
         }
 
 
@@ -539,13 +510,12 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
 
         tv_estTimestamp.setText("---");
 
-        tv_calculatedSpeed.setText("---");
-        tv_calculatedAccumulatedDistance.setText("---");
+        tv_calculatedCadence.setText("---");
         tv_cumulativeRevolutions.setText("---");
         tv_timestampOfLastEvent.setText("---");
 
         tv_isSpdAndCadCombo.setText("---");
-        tv_calculatedCadence.setText("---");
+        tv_calculatedSpeed.setText("---");
 
         tv_cumulativeOperatingTime.setText("---");
 
@@ -559,20 +529,22 @@ public class Activity_BikeSpeedDistanceSampler extends Activity
         textView_BatteryVoltage.setText("---");
         textView_BatteryStatus.setText("---");
 
-        textView_IsStopped.setText("---");
+        textView_IsPedallingStopped.setText("---");
 
         // starts the plugins UI search
-        bsdReleaseHandle = AntPlusBikeSpeedDistancePcc.requestAccess(this, this,
-            mResultReceiver, mDeviceStateChangeReceiver);
+        bcReleaseHandle = AntPlusBikeCadencePcc.requestAccess(this, this, mResultReceiver,
+            mDeviceStateChangeReceiver);
+        // AntPlusBikeCadencePcc.requestAccess(this, 0, 0, false,
+        // //Asynchronous request mode
     }
 
     @Override
     protected void onDestroy()
     {
-        bsdReleaseHandle.close();
-        if(bcReleaseHandle != null)
+        bcReleaseHandle.close();
+        if(bsReleaseHandle != null)
         {
-            bcReleaseHandle.close();
+            bsReleaseHandle.close();
         }
         super.onDestroy();
     }
