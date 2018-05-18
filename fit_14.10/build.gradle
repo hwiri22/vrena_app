@@ -1,2 +1,0 @@
-configurations.maybeCreate("default")
-artifacts.add("default", file('fit_14.10.jar'))

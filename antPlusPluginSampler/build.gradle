@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
     defaultConfig {
@@ -19,8 +19,7 @@ android {
 }
 
 dependencies {
-    compile project(':antPluginLib')
     compile 'com.android.support:support-v4:18.0.0'
-    compile files('libs/antpluginlib_3-5-0.jar')
-    implementation project(':fit_14.10')
+    implementation files('libs/antpluginlib_3-5-0.jar')
+    implementation files('libs/fit_14.10.jar')
 }
